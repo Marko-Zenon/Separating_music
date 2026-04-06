@@ -4,7 +4,7 @@ import soundfile as sf
 from scipy.linalg import svd
 import os
 
-def run_pca_separation_from_array(x, fs, k=20, output_dir="output_files", suffix=None):
+def run_pca_separation_from_array(x, fs, k=5, output_dir="output_files", suffix=None):
     """
     Main algorithm for PCA-based source separation.
     """
@@ -61,5 +61,5 @@ if __name__ == "__main__":
     y, sr = librosa.load(file_path, sr=16000, mono=False)
     x_mixed = y[0] + y[1]
     name = file_name.replace(".wav", "")
-    run_pca_separation_from_array(x_mixed, sr, k=20, output_dir="output_files", suffix=name)
+    run_pca_separation_from_array(x_mixed, sr, k=5, output_dir="output_files", suffix=name)
     print(f"Processed: {file_name}")
