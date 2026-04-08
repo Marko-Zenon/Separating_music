@@ -27,10 +27,10 @@ The algorithm is benchmarked using the **MIR-1K** dataset(but in repository we h
 
 ## Structure of project
 
-main.py - a file with an algorithm that performs the main task
+main.py - a file with an algorithm that performs the main task.
 
 
-analysis.py - a file with testing different value for k
+analysis.py - a file with testing different value for k.
 
 
 ### Prerequisites
