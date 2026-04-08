@@ -49,7 +49,7 @@ def empirical_k_analysis(dataset_path, k_range):
     print(f"Maximum average SDR: {max(avg_sdr):.2f} dB")
 
 if __name__ == "__main__":
-    path_to_wavs = "MIR-1K(small)"
+    path_to_wavs = "MIR-1k(small)"
     empirical_k_analysis(path_to_wavs, k_range=range(1, 30))
 
 # Optimal k: 20
