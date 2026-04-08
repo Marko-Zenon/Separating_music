@@ -25,6 +25,11 @@ The algorithm is benchmarked using the **MIR-1K** dataset(but in repository we h
 * **Hyperparameter Selection:** Empirical analysis across the full dataset determined that **$k=20$** is the optimal number of principal components.
 * **Results:** The system achieved an average SDR of approximately **0.23 dB**, which is consistent for an unsupervised, assumption-light method.
 
+## Structure of project
+
+main.py - a file with an algorithm that performs the main task
+analysis.py - a file with testing different value for k
+
 
 ### Prerequisites
 Install the required libraries:
