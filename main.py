@@ -52,7 +52,7 @@ def run_pca_separation_from_array(x, fs, k=5, output_dir="output_files", suffix=
 
 
 if __name__ == "__main__":
-    dataset_path = "MIR-1k(small)"
+    dataset_path = "MIR-1K(small)"
     wav_files = [f for f in os.listdir(dataset_path) if f.endswith(".wav")]
     if not wav_files:
         raise RuntimeError("No .wav files found")
