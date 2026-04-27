@@ -2,3 +2,5 @@ numpy
 librosa
 soundfile
 scipy
+matplotlib
+mir_eval
