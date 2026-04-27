@@ -51,5 +51,3 @@ Install the required libraries:
 ```bash
 pip install -r requirements.txt
 ```
-```bash
-pip install numpy librosa scipy soundfile mir_eval matplotlib
