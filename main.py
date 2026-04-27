@@ -4,62 +4,70 @@ import soundfile as sf
 from scipy.linalg import svd
 import os
 
-def run_pca_separation_from_array(x, fs, k=5, output_dir="output_files", suffix=None):
-    """
-    Main algorithm for PCA-based source separation.
-    """
-    # STAGE 1 — Signal Acquisition
+
+def run_pca_separation_from_array(x, fs, k_vocal=100, k_skip=0,
+                                   output_dir="output_files", suffix=None):
     if x.ndim > 1:
-        x = np.mean(x, axis=0)
+        x = np.mean(x, axis=0)          # x ∈ ℝᴺ
 
-    # STAGE 2 — STFT
     M, H = 1024, 256
-    S = librosa.stft(x, n_fft=M, hop_length=H, window='hann')
+    S = librosa.stft(x, n_fft=M, hop_length=H, window='hann')  # ℂ^{513×T}
 
-    # STAGE 3 — Magnitude + Phase
-    S_mag = np.abs(S)
-    Phase = np.exp(1j * np.angle(S))
-
-    # STAGE 4 — Centering
-    mu = np.mean(S_mag, axis=1, keepdims=True)
-    B = S_mag - mu
-
-    # STAGE 5 — Truncated SVD
-    U, sigma, Vt = svd(B, full_matrices=False)
-    U_k = U[:, :k]
-    sigma_k = sigma[:k]
-    Vt_k = Vt[:k, :]
-    B_voice = U_k @ np.diag(sigma_k) @ Vt_k
-
-    # STAGE 6 — Reconstruction
     eps = 1e-10
-    S_voice_mag = np.maximum(B_voice + mu, 0)
-    mask = S_voice_mag / (S_mag + eps)
-    mask = np.clip(mask, 0, 1)
-    S_voice = S_mag * mask * Phase
-    x_voice = librosa.istft(S_voice, hop_length=H, window='hann')
-    min_len = min(len(x), len(x_voice))
-    x_voice = x_voice[:min_len]
-    x_inst = x[:min_len] - x_voice
+    S_mag = np.abs(S)                                           # ℝ^{513×T}
+    Phase = np.exp(1j * np.angle(S))                           # ℂ^{513×T}
 
-    # STAGE 7 — Export
+    mu = np.mean(S_mag, axis=1, keepdims=True)                 # ℝ^{513×1}
+    B  = S_mag - mu                                            # ℝ^{513×T}
+
+    U, sigma, Vt = svd(B, full_matrices=False)                 # economy SVD
+
+    # Vocal subspace: components 0 … k_vocal-1
+    B_voice = (U[:, :k_vocal]
+               @ np.diag(sigma[:k_vocal])
+               @ Vt[:k_vocal, :])                              # ℝ^{513×T}
+
+    S_voice_approx = np.maximum(B_voice + mu, 0)              # ℝ^{513×T}≥0
+
+    mask_voice = np.clip(S_voice_approx / (S_mag + eps), 0.0, 1.0)
+
+    mask_inst = 1.0 - mask_voice
+
+    S_voice_out = S_mag * mask_voice * Phase                   # ℂ^{513×T}
+    S_inst_out  = S_mag * mask_inst  * Phase                   # ℂ^{513×T}
+
+    x_voice = librosa.istft(S_voice_out, hop_length=H, window='hann')
+    x_inst  = librosa.istft(S_inst_out,  hop_length=H, window='hann')
+
+    min_len = min(len(x), len(x_voice), len(x_inst))
+    x_voice = x_voice[:min_len]
+    x_inst  = x_inst[:min_len]
+
     if suffix is not None:
         os.makedirs(output_dir, exist_ok=True)
         sf.write(os.path.join(output_dir, f"vocal_{suffix}.wav"), x_voice, fs)
-        sf.write(os.path.join(output_dir, f"inst_{suffix}.wav"), x_inst, fs)
+        sf.write(os.path.join(output_dir, f"inst_{suffix}.wav"),  x_inst,  fs)
 
     return x_voice, x_inst
 
-
 if __name__ == "__main__":
-    dataset_path = "MIR-1k(small)"
+    dataset_path = "papka"
     wav_files = [f for f in os.listdir(dataset_path) if f.endswith(".wav")]
     if not wav_files:
-        raise RuntimeError("No .wav files found")
+        raise RuntimeError("No .wav files found in " + dataset_path)
+
     file_name = sorted(wav_files)[0]
     file_path = os.path.join(dataset_path, file_name)
+
     y, sr = librosa.load(file_path, sr=16000, mono=False)
-    x_mixed = y[0] + y[1]
+    x_mixed = y[0] + y[1]                    # sum both stereo channels
+
     name = file_name.replace(".wav", "")
-    run_pca_separation_from_array(x_mixed, sr, k=5, output_dir="output_files", suffix=name)
-    print(f"Processed: {file_name}")
+    x_v, x_i = run_pca_separation_from_array(
+        x_mixed, sr,
+        k_vocal=50, k_skip=100,
+        output_dir="output_files",
+        suffix=name
+    )
+    print(f"Processed: {file_name}  |  vocal len={len(x_v)}  inst len={len(x_i)}")
+    print("fdjshgfsdkj")
