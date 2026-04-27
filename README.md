@@ -25,15 +25,31 @@ The algorithm is benchmarked using the **MIR-1K** dataset(but in repository we h
 * **Hyperparameter Selection:** Empirical analysis across the full dataset determined that **$k=20$** is the optimal number of principal components.
 * **Results:** The system achieved an average SDR of approximately **0.23 dB**, which is consistent for an unsupervised, assumption-light method.
 
-## Structure of project
+## Project Structure
 
-main.py - a file with an algorithm that performs the main task.
+The repository is organized into a modular structure to facilitate data management, algorithmic processing, and performance analysis:
+
+```text
+Separating_music/
+├── MIR-1k(small)/           # Subset of the MIR-1K dataset for development and testing
+├── output_files/            # Processed audio outputs (separated tracks)
+│   ├── inst_Ani_1_01.wav    # Extracted instrumental component
+│   └── vocal_Ani_1_01.wav   # Extracted vocal component
+├── .gitignore               # Standard Git exclusion patterns
+├── README.md                # Project documentation and implementation details
+├── analysis.py              # Script for hyperparameter optimization and SDR evaluation
+├── main.py                  # Core implementation of the music separation algorithm
+└── final_empirical_results.png # Visualization of performance metrics across k-values
+```
+
+## Prerequisites
 
 
-analysis.py - a file with testing different value for k.
+Install the required libraries: 
 
 
-### Prerequisites
-Install the required libraries:
+```bash
+pip install -r requirements.txt
+```
 ```bash
 pip install numpy librosa scipy soundfile mir_eval matplotlib
