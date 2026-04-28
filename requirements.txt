@@ -1,6 +1,7 @@
 numpy
+scipy
 librosa
 soundfile
-scipy
 matplotlib
+tqdm
 mir_eval
